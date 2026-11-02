@@ -211,4 +211,150 @@ Program Execution
 
     ]
 
-};
+};// ==============================
+// JAVA LESSON 1 - PREMIUM CONTENT
+// ==============================
+
+window.courseData.java.units[0].lessons[0].content = `
+
+<div class="explanation-box">
+
+    <h2>01. Introduction to Java</h2>
+
+    <h3>What is Java?</h3>
+
+    <p>
+    Java is a high-level, object-oriented,
+    general-purpose programming language.
+    It was developed by Sun Microsystems
+    and released in 1995.
+    </p>
+
+    <p dir="rtl">
+    جافا لغة برمجة عالية المستوى،
+    وتعتمد على مفهوم البرمجة كائنية التوجه.
+    تُستخدم في بناء تطبيقات متنوعة،
+    وتتميز بقابليتها للعمل على أنظمة تشغيل مختلفة.
+    </p>
+
+    <h3>Why Do We Learn Java?</h3>
+
+    <ul>
+        <li>Platform Independence</li>
+        <li>Object-Oriented Programming</li>
+        <li>Strong Type System</li>
+        <li>Large Developer Community</li>
+    </ul>
+
+</div>
+
+<div class="code-example-box">
+
+    <h3>02. Your First Java Program</h3>
+
+    <p>
+    Let's write our first Java program.
+    </p>
+
+    <pre id="javaExample"><code>public class Main {
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello, CODEVERSE!");
+
+    }
+
+}</code></pre>
+
+    <button class="copy-code-btn"
+    onclick="copyLessonCode('javaExample')">
+    Copy Code
+    </button>
+
+</div>
+
+<div class="output-box">
+
+    <h3>03. Expected Output</h3>
+
+    <pre><code>Hello, CODEVERSE!</code></pre>
+
+</div>
+
+<div class="explanation-box">
+
+    <h3>04. Understand Every Line</h3>
+
+    <p><b>public class Main</b></p>
+    <p>
+    Creates a class named Main.
+    Every Java program needs a class structure.
+    </p>
+
+    <p><b>public static void main(String[] args)</b></p>
+    <p>
+    This is the main method where program execution begins.
+    </p>
+
+    <p><b>System.out.println()</b></p>
+    <p>
+    Prints information to the console and moves to a new line.
+    </p>
+
+    <p><b>;</b></p>
+    <p>
+    The semicolon marks the end of a Java statement.
+    </p>
+
+</div>
+
+<div class="practice-box">
+
+    <h3>05. Practice Zone</h3>
+
+    <p><b>Your Task:</b></p>
+
+    <p>
+    Write a Java program that prints:
+    </p>
+
+    <pre><code>Your Name
+Your University
+Your Department</code></pre>
+
+    <textarea id="javaPractice"
+    rows="9"
+    placeholder="Write your Java code here..."></textarea>
+
+    <p>
+    Try to write the program yourself before looking
+    at the example above.
+    </p>
+
+</div>
+
+<div class="mistakes-box">
+
+    <h3>06. Common Mistakes</h3>
+
+    <ul>
+        <li>Forgetting the semicolon.</li>
+        <li>Incorrect capitalization of Main.</li>
+        <li>Missing quotation marks around text.</li>
+        <li>Writing the main method incorrectly.</li>
+    </ul>
+
+</div>
+
+<div class="note-box">
+
+    <h3>07. Important Note</h3>
+
+    <p>
+    Java is case-sensitive.
+    This means Main and main are different identifiers.
+    </p>
+
+</div>
+
+`;
