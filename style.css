@@ -1333,4 +1333,99 @@ body.light-mode .footer .logo {
         will-change: transform;
     }
 
+}/* ==============================
+   COURSE LEARNING VIEWER
+============================== */
+
+.course-viewer {
+    min-height: 100vh;
+    padding: 50px 6%;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.course-viewer[hidden] {
+    display: none !important;
+}
+
+.secondary-btn {
+    padding: 12px 22px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card-bg);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.viewer-header {
+    margin: 35px 0;
+}
+
+.viewer-header h1 {
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+
+.viewer-header p {
+    color: var(--text-secondary);
+}
+
+.learning-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 25px;
+}
+
+.lessons-sidebar,
+.lesson-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    min-height: 400px;
+}
+
+.lessons-sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#lessonsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lesson-content {
+    line-height: 1.8;
+}
+
+#lessonDetails h2 {
+    margin-bottom: 15px;
+}
+
+#lessonDetails p {
+    color: var(--text-secondary);
+}
+
+@media (max-width: 750px) {
+
+    .learning-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .course-viewer {
+        padding: 30px 5%;
+    }
+
+    .viewer-header h1 {
+        font-size: 29px;
+    }
+
+    .lessons-sidebar,
+    .lesson-content {
+        padding: 20px;
+    }
+
 }
