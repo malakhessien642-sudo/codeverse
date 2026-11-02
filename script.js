@@ -631,4 +631,79 @@ const lessonObserver = new MutationObserver(() => {
 lessonObserver.observe(
     document.getElementById("lessonDetails"),
     { childList: true, subtree: true }
+);// ==============================
+// SAVE PRACTICE CODE
+// ==============================
+
+// Track the currently opened course
+const previousOpenRealCourse = window.openRealCourse;
+
+window.openRealCourse = function(courseKey) {
+
+    localStorage.setItem(
+        "codeverse-current-course",
+        courseKey
+    );
+
+    if (previousOpenRealCourse) {
+        return previousOpenRealCourse(courseKey);
+    }
+};
+
+// Add save button to practice editors
+const practiceObserver = new MutationObserver(() => {
+
+    const courseKey = localStorage.getItem(
+        "codeverse-current-course"
+    );
+
+    if (!courseKey) return;
+
+    document.querySelectorAll(".practice-box textarea")
+        .forEach(textarea => {
+
+            if (textarea.dataset.saveReady) return;
+
+            textarea.dataset.saveReady = "true";
+
+            const storageKey =
+                "codeverse-code-" + courseKey + "-" + textarea.id;
+
+            textarea.value =
+                localStorage.getItem(storageKey) || textarea.value;
+
+            const saveButton = document.createElement("button");
+
+            saveButton.className = "copy-code-btn";
+            saveButton.textContent = "💾 Save My Code";
+
+            saveButton.style.marginTop = "12px";
+
+            saveButton.addEventListener("click", () => {
+
+                localStorage.setItem(
+                    storageKey,
+                    textarea.value
+                );
+
+                saveButton.textContent = "✓ Code Saved!";
+
+                setTimeout(() => {
+                    saveButton.textContent = "💾 Save My Code";
+                }, 1500);
+
+            });
+
+            textarea.insertAdjacentElement(
+                "afterend",
+                saveButton
+            );
+
+        });
+
+});
+
+practiceObserver.observe(
+    document.getElementById("lessonDetails"),
+    { childList: true, subtree: true }
 );
