@@ -1,0 +1,169 @@
+// ==============================
+// CODEVERSE THEME SYSTEM
+// ==============================
+
+const themeBtn = document.getElementById("themeBtn");
+
+const savedTheme = localStorage.getItem("codeverse-theme");
+
+if (savedTheme === "light") {
+    document.body.classList.add("light-mode");
+    themeBtn.textContent = "☾";
+} else {
+    document.body.classList.remove("light-mode");
+    themeBtn.textContent = "☀";
+}
+
+themeBtn.addEventListener("click", () => {
+
+    document.body.classList.toggle("light-mode");
+
+    const isLight = document.body.classList.contains("light-mode");
+
+    if (isLight) {
+        themeBtn.textContent = "☾";
+        localStorage.setItem("codeverse-theme", "light");
+    } else {
+        themeBtn.textContent = "☀";
+        localStorage.setItem("codeverse-theme", "dark");
+    }
+
+});// ==============================
+// CODEVERSE LANGUAGE SYSTEM
+// ==============================
+
+const languageBtn = document.getElementById("languageBtn");
+
+let currentLanguage =
+    localStorage.getItem("codeverse-language") || "en";
+
+const translations = {
+    en: {
+        home: "Home",
+        courses: "Courses",
+        about: "About",
+        explore: "Explore Courses",
+        heroTitle: "Explore Code. Build Your Future.",
+        heroDescription: "Start your programming journey with structured courses, practical lessons, and real projects.",
+        coursesTitle: "Explore Our Courses",
+        coursesDescription: "Choose your path and start building your future.",
+        aboutTitle: "Why CODEVERSE?",
+        dashboardTitle: "Your Learning Dashboard"
+    },
+
+    ar: {
+        home: "الرئيسية",
+        courses: "الكورسات",
+        about: "عن المنصة",
+        explore: "استكشف الكورسات",
+        heroTitle: "اكتشف البرمجة. وابنِ مستقبلك.",
+        heroDescription: "ابدأ رحلتك في البرمجة من خلال مسارات تعليمية منظمة ودروس عملية ومشروعات حقيقية.",
+        coursesTitle: "استكشف الكورسات",
+        coursesDescription: "اختار مسارك وابدأ في بناء مستقبلك.",
+        aboutTitle: "لماذا CODEVERSE؟",
+        dashboardTitle: "لوحة تقدمك التعليمية"
+    }
+};
+
+function updateLanguage() {
+
+    const lang = translations[currentLanguage];
+
+    document.documentElement.lang = currentLanguage;
+    document.documentElement.dir =
+        currentLanguage === "ar" ? "rtl" : "ltr";
+
+    const navLinks = document.querySelectorAll(".nav-links a");
+
+    navLinks[0].textContent = lang.home;
+    navLinks[1].textContent = lang.courses;
+    navLinks[2].textContent = lang.about;
+
+    languageBtn.textContent =
+        currentLanguage === "en" ? "EN / AR" : "AR / EN";
+
+    document.querySelector(".explore-btn").textContent = lang.explore;
+
+    document.querySelector(".hero h1").textContent = lang.heroTitle;
+
+    document.querySelector(".hero-description").textContent =
+        lang.heroDescription;
+
+    document.querySelector(".courses-section h2").textContent =
+        lang.coursesTitle;
+
+    document.querySelector(".features-section h2").textContent =
+        lang.aboutTitle;
+
+    document.querySelector(".dashboard-heading h2").textContent =
+        lang.dashboardTitle;
+
+    localStorage.setItem("codeverse-language", currentLanguage);
+}
+
+languageBtn.addEventListener("click", () => {
+
+    currentLanguage = currentLanguage === "en" ? "ar" : "en";
+
+    updateLanguage();
+
+});
+
+updateLanguage();// ==============================
+// COURSE NAVIGATION SYSTEM
+// ==============================
+
+const courseCards = document.querySelectorAll(".course-card");
+
+const courseNames = {
+    java: "Java",
+    javascript: "JavaScript",
+    html: "HTML",
+    css: "CSS",
+    php: "PHP",
+    dart: "Dart"
+};
+
+courseCards.forEach((card, index) => {
+
+    const courseKeys = [
+        "java",
+        "javascript",
+        "html",
+        "css",
+        "php",
+        "dart"
+    ];
+
+    const courseKey = courseKeys[index];
+
+    card.style.cursor = "pointer";
+
+    card.addEventListener("click", () => {
+
+        localStorage.setItem(
+            "codeverse-current-course",
+            courseKey
+        );
+
+        openCourse(courseKey);
+
+    });
+
+});
+
+function openCourse(courseKey) {
+
+    const courseName = courseNames[courseKey];
+
+    if (!courseName) return;
+
+    alert(
+        currentLanguage === "ar"
+        ? "تم اختيار كورس " + courseName +
+          ". جاري تجهيز صفحة الدروس!"
+        : courseName +
+          " course selected. Lesson viewer is being prepared!"
+    );
+
+}
