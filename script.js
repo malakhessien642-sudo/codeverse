@@ -250,4 +250,95 @@ backToCourses.addEventListener("click", () => {
         behavior: "smooth"
     });
 
-});
+});// ==============================
+// LOAD REAL COURSE CONTENT
+// ==============================
+
+function openCourse(courseKey) {
+
+    const courseViewer = document.getElementById("courseViewer");
+
+    document.querySelectorAll(
+        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
+    ).forEach(section => {
+        section.hidden = true;
+    });
+
+    courseViewer.hidden = false;
+
+    const title = document.getElementById("viewerCourseTitle");
+    const description = document.getElementById("viewerCourseDescription");
+    const lessonsList = document.getElementById("lessonsList");
+    const lessonDetails = document.getElementById("lessonDetails");
+
+    title.textContent = "Loading...";
+    lessonsList.innerHTML = "";
+    lessonDetails.innerHTML = "<h2>Loading course lessons...</h2>";
+
+    function displayCourse() {
+
+        const course = window.courseData?.[courseKey];
+
+        if (!course) {
+            lessonDetails.innerHTML =
+                "<h2>Course content not found.</h2>";
+            return;
+        }
+
+        title.textContent = course.title;
+        description.textContent = course.description;
+
+        lessonsList.innerHTML = "";
+
+        course.units.forEach((unit, unitIndex) => {
+
+            const unitTitle = document.createElement("h3");
+            unitTitle.textContent = unit.title;
+            lessonsList.appendChild(unitTitle);
+
+            unit.lessons.forEach((lesson, lessonIndex) => {
+
+                const button = document.createElement("button");
+
+                button.className = "secondary-btn";
+                button.textContent = lesson.title;
+                button.style.width = "100%";
+                button.style.textAlign = "left";
+
+                button.addEventListener("click", () => {
+                    lessonDetails.innerHTML = lesson.content;
+                });
+
+                lessonsList.appendChild(button);
+
+                if (unitIndex === 0 && lessonIndex === 0) {
+                    button.click();
+                }
+
+            });
+
+        });
+
+    }
+
+    if (window.courseData?.[courseKey]) {
+        displayCourse();
+    } else {
+
+        const script = document.createElement("script");
+
+        script.src = courseKey + ".js";
+
+        script.onload = displayCourse;
+
+        script.onerror = () => {
+            lessonDetails.innerHTML =
+                "<h2>Unable to load course content.</h2>";
+        };
+
+        document.body.appendChild(script);
+
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
