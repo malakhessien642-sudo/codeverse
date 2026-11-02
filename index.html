@@ -4,579 +4,279 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="theme-color" content="#090817">
-    <meta name="description" content="CODEVERSE - Explore Code. Build Your Future.">
+    <meta name="theme-color" content="#0b0b18">
+    <meta name="description" content="CODEVERSE — Explore Code. Build Your Future.">
 
-    <title>CODEVERSE | Learn Programming</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>CODEVERSE | Learn to Code</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="app-container">
+    <div class="app-shell">
 
-        <!-- Navigation -->
         <header class="navbar">
 
-            <a href="#" class="logo">
-                <span class="logo-icon">C</span>
-                <span>CODE<span class="logo-highlight">VERSE</span></span>
+            <a href="#" class="brand" aria-label="CODEVERSE Home">
+                <span class="brand-icon">&lt;/&gt;</span>
+                <span>CODE<span class="brand-highlight">VERSE</span></span>
             </a>
 
             <nav class="nav-links">
-                <a href="#home">Home</a>
-                <a href="#courses">Courses</a>
-                <a href="#about">About</a>
+                <a href="#home" data-i18n="navHome">Home</a>
+                <a href="#courses" data-i18n="navCourses">Courses</a>
+                <a href="#dashboard" data-i18n="navProgress">My Progress</a>
             </nav>
 
             <div class="nav-actions">
-
-                <button class="language-btn" id="languageBtn">
-                    EN / AR
+                <button id="languageBtn" class="icon-btn"
+                    type="button" aria-label="Change language">
+                    AR
                 </button>
 
-                <button class="theme-btn" id="themeBtn">
+                <button id="themeBtn" class="icon-btn"
+                    type="button" aria-label="Change theme">
                     ☀
                 </button>
 
-                <button class="explore-btn"
-                    onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">
-                    Explore Courses
+                <button id="menuBtn" class="icon-btn mobile-menu-btn"
+                    type="button" aria-label="Open menu"
+                    aria-expanded="false">
+                    ☰
                 </button>
-
             </div>
 
-        </header>        <!-- Hero Section -->
-        <main>
+        </header>
 
-            <section class="hero" id="home">
+        <main id="home">
+
+            <section class="hero">
 
                 <div class="hero-content">
 
-                    <div class="hero-badge">
-                        <span class="status-dot"></span>
-                        YOUR JOURNEY STARTS HERE
-                    </div>
+                    <span class="eyebrow" data-i18n="heroBadge">
+                        YOUR CODING JOURNEY STARTS HERE
+                    </span>
 
-                    <h1>
-                        Explore Code.
-                        <span>Build Your Future.</span>
+                    <h1 data-i18n="heroTitle">
+                        Explore Code.<br>
+                        <span class="gradient-text">Build Your Future.</span>
                     </h1>
 
-                    <p class="hero-description">
-                        Discover the world of programming through
-                        structured courses, practical examples,
-                        interactive quizzes, and real-world projects.
+                    <p data-i18n="heroDescription">
+                        Master programming step by step with structured
+                        lessons, practical exercises, and real projects.
                     </p>
 
                     <div class="hero-actions">
-
-                        <a href="#courses" class="primary-btn">
-                            Start Learning
-                            <span>→</span>
+                        <a href="#courses" class="primary-btn"
+                            data-i18n="startLearning">
+                            Start Learning <span>→</span>
                         </a>
 
-                        <a href="#about" class="secondary-btn">
-                            Discover More
+                        <a href="#features" class="secondary-btn"
+                            data-i18n="exploreFeatures">
+                            Explore Features
                         </a>
-
                     </div>
 
                     <div class="hero-stats">
-
-                        <div class="stat-item">
-                            <h3>06</h3>
-                            <p>Learning Paths</p>
+                        <div>
+                            <strong>06</strong>
+                            <span data-i18n="learningPaths">Learning Paths</span>
                         </div>
 
-                        <div class="stat-item">
-                            <h3>100+</h3>
-                            <p>Lessons Planned</p>
+                        <div>
+                            <strong>∞</strong>
+                            <span data-i18n="learnAtYourPace">Learn at Your Pace</span>
                         </div>
 
-                        <div class="stat-item">
-                            <h3>∞</h3>
-                            <p>Learning Opportunities</p>
+                        <div>
+                            <strong>01</strong>
+                            <span data-i18n="yourJourney">Your Journey</span>
                         </div>
-
                     </div>
 
                 </div>
 
-                <div class="hero-visual">
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="orb orb-one"></div>
+                    <div class="orb orb-two"></div>
 
-                    <div class="orbit orbit-one"></div>
-                    <div class="orbit orbit-two"></div>
-
-                    <div class="hero-code-card">
-
-                        <div class="code-card-header">
-                            <div class="window-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-
-                            <span>main.java</span>
+                    <div class="code-window">
+                        <div class="window-bar">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <p>your-future.js</p>
                         </div>
 
-                        <div class="code-content">
-                            <p><span class="code-purple">public class</span> Main {</p>
-
-                            <p class="indent">
-                                <span class="code-purple">public static void</span>
-                                main(String[] args) {
-                            </p>
-
-                            <p class="indent double">
-                                System.out.println(
-                            </p>
-
-                            <p class="indent triple">
-                                <span class="code-green">"Hello, CODEVERSE!"</span>
-                            </p>
-
-                            <p class="indent double">);</p>
-
-                            <p class="indent">}</p>
-
+                        <div class="code-preview">
+                            <p><span class="code-purple">const</span> future = {</p>
+                            <p>&nbsp;&nbsp;skills: <span class="code-cyan">"Programming"</span>,</p>
+                            <p>&nbsp;&nbsp;mindset: <span class="code-green">"Keep Learning"</span>,</p>
+                            <p>&nbsp;&nbsp;potential: <span class="code-yellow">Infinity</span></p>
+                            <p>};</p>
+                            <br>
+                            <p><span class="code-purple">function</span> <span class="code-cyan">buildFuture</span>() {</p>
+                            <p>&nbsp;&nbsp;<span class="code-purple">return</span> future;</p>
                             <p>}</p>
                         </div>
 
-                        <div class="code-card-footer">
-                            <span class="success-icon">●</span>
+                        <div class="code-status">
+                            <span class="status-dot"></span>
                             Ready to learn
                         </div>
-
                     </div>
-
-                    <div class="floating-icon icon-java">☕</div>
-                    <div class="floating-icon icon-js">JS</div>
-                    <div class="floating-icon icon-code">&lt;/&gt;</div>
-
                 </div>
 
-            </section>            <!-- Courses Section -->
-            <section class="courses-section" id="courses">
+            </section>
+
+            <section id="courses" class="courses-section">
 
                 <div class="section-heading">
+                    <span class="eyebrow" data-i18n="coursesEyebrow">
+                        CHOOSE YOUR PATH
+                    </span>
 
-                    <div>
-                        <span class="section-label">LEARNING PATHS</span>
-
-                        <h2>
-                            Explore Our
-                            <span>Courses</span>
-                        </h2>
-
-                        <p>
-                            Choose your learning path and start building
-                            your programming skills from the ground up.
-                        </p>
-                    </div>
-
-                    <span class="courses-count">06 PATHS AVAILABLE</span>
-
-                </div>
-
-                <div class="courses-grid">
-
-                    <!-- Java -->
-                    <article class="course-card java-card">
-
-                        <div class="course-top">
-                            <div class="course-icon">☕</div>
-                            <span class="level-badge">Beginner to Advanced</span>
-                        </div>
-
-                        <h3>Java Programming</h3>
-
-                        <p>
-                            Master Java programming, OOP concepts,
-                            data structures, and build powerful applications.
-                        </p>
-
-                        <div class="course-info">
-                            <span>📚 Complete Curriculum</span>
-                            <span>🧠 Quizzes & Projects</span>
-                        </div>
-
-                        <a href="#" class="course-link"
-                            onclick="return false;">
-                            Explore Course <span>→</span>
-                        </a>
-
-                    </article>
-
-                    <!-- JavaScript -->
-                    <article class="course-card javascript-card">
-
-                        <div class="course-top">
-                            <div class="course-icon">JS</div>
-                            <span class="level-badge">Beginner to Advanced</span>
-                        </div>
-
-                        <h3>JavaScript</h3>
-
-                        <p>
-                            Learn modern JavaScript, DOM manipulation,
-                            asynchronous programming, and APIs.
-                        </p>
-
-                        <div class="course-info">
-                            <span>📚 Complete Curriculum</span>
-                            <span>🧠 Quizzes & Projects</span>
-                        </div>
-
-                        <a href="#" class="course-link"
-                            onclick="return false;">
-                            Explore Course <span>→</span>
-                        </a>
-
-                    </article>
-
-                    <!-- HTML -->
-                    <article class="course-card html-card">
-
-                        <div class="course-top">
-                            <div class="course-icon">5</div>
-                            <span class="level-badge">Beginner</span>
-                        </div>
-
-                        <h3>HTML5</h3>
-
-                        <p>
-                            Learn how to structure web pages using
-                            HTML elements, forms, tables, and semantic tags.
-                        </p>
-
-                        <div class="course-info">
-                            <span>📚 Complete Curriculum</span>
-                            <span>🧠 Quizzes & Projects</span>
-                        </div>
-
-                        <a href="#" class="course-link"
-                            onclick="return false;">
-                            Explore Course <span>→</span>
-                        </a>
-
-                    </article>
-
-                    <!-- CSS -->
-                    <article class="course-card css-card">
-
-                        <div class="course-top">
-                            <div class="course-icon">3</div>
-                            <span class="level-badge">Beginner to Advanced</span>
-                        </div>
-
-                        <h3>CSS3</h3>
-
-                        <p>
-                            Master styling, Flexbox, Grid, animations,
-                            and responsive web design.
-                        </p>
-
-                        <div class="course-info">
-                            <span>📚 Complete Curriculum</span>
-                            <span>🧠 Quizzes & Projects</span>
-                        </div>
-
-                        <a href="#" class="course-link"
-                            onclick="return false;">
-                            Explore Course <span>→</span>
-                        </a>
-
-                    </article>
-
-                    <!-- PHP -->
-                    <article class="course-card php-card">
-
-                        <div class="course-top">
-                            <div class="course-icon">PHP</div>
-                            <span class="level-badge">Beginner to Advanced</span>
-                        </div>
-
-                        <h3>PHP Development</h3>
-
-                        <p>
-                            Learn server-side programming, OOP,
-                            forms, sessions, and database integration.
-                        </p>
-
-                        <div class="course-info">
-                            <span>📚 Complete Curriculum</span>
-                            <span>🧠 Quizzes & Projects</span>
-                        </div>
-
-                        <a href="#" class="course-link"
-                            onclick="return false;">
-                            Explore Course <span>→</span>
-                        </a>
-
-                    </article>
-
-                    <!-- Dart -->
-                    <article class="course-card dart-card">
-
-                        <div class="course-top">
-                            <div class="course-icon">D</div>
-                            <span class="level-badge">Beginner to Advanced</span>
-                        </div>
-
-                        <h3>Dart Programming</h3>
-
-                        <p>
-                            Explore Dart fundamentals, OOP,
-                            asynchronous programming, and Flutter foundations.
-                        </p>
-
-                        <div class="course-info">
-                            <span>📚 Complete Curriculum</span>
-                            <span>🧠 Quizzes & Projects</span>
-                        </div>
-
-                        <a href="#" class="course-link"
-                            onclick="return false;">
-                            Explore Course <span>→</span>
-                        </a>
-
-                    </article>
-
-                </div>
-
-            </section>            <!-- Features Section -->
-            <section class="features-section" id="about">
-
-                <div class="section-heading centered">
-
-                    <span class="section-label">WHY CODEVERSE?</span>
-
-                    <h2>
-                        More Than Just
-                        <span>Learning</span>
+                    <h2 data-i18n="coursesTitle">
+                        Find Your <span class="gradient-text">Next Skill</span>
                     </h2>
 
-                    <p>
-                        Everything you need to become a confident developer.
+                    <p data-i18n="coursesDescription">
+                        Six learning paths. One place to grow.
                     </p>
+                </div>
 
+                <div id="coursesGrid" class="courses-grid">
+                    <!-- Course cards will be generated by JavaScript. -->
+                </div>
+
+            </section>
+
+            <section id="features" class="features-section">
+
+                <div class="section-heading">
+                    <span class="eyebrow" data-i18n="featuresEyebrow">
+                        BUILT FOR YOUR GROWTH
+                    </span>
+
+                    <h2 data-i18n="featuresTitle">
+                        Learn More. <span class="gradient-text">Build More.</span>
+                    </h2>
                 </div>
 
                 <div class="features-grid">
 
-                    <div class="feature-card">
-                        <div class="feature-icon">📖</div>
-                        <h3>Detailed Lessons</h3>
-                        <p>
-                            Learn through comprehensive Arabic and English
-                            explanations with multiple coding examples.
+                    <article class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3 data-i18n="featureLessons">Structured Lessons</h3>
+                        <p data-i18n="featureLessonsText">
+                            Learn through organized units, detailed explanations,
+                            and practical examples.
                         </p>
-                    </div>
+                    </article>
 
-                    <div class="feature-card">
+                    <article class="feature-card">
                         <div class="feature-icon">💻</div>
-                        <h3>Practical Coding</h3>
-                        <p>
-                            Practice programming concepts through
-                            real examples and hands-on projects.
+                        <h3 data-i18n="featurePractice">Practice & Code</h3>
+                        <p data-i18n="featurePracticeText">
+                            Write code, save your work, and learn by doing.
                         </p>
-                    </div>
+                    </article>
 
-                    <div class="feature-card">
+                    <article class="feature-card">
+                        <div class="feature-icon">📈</div>
+                        <h3 data-i18n="featureProgress">Track Progress</h3>
+                        <p data-i18n="featureProgressText">
+                            Keep track of completed lessons and your learning journey.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
                         <div class="feature-icon">🧠</div>
-                        <h3>Interactive Quizzes</h3>
-                        <p>
-                            Test your understanding with questions,
-                            challenges, and unit assessments.
+                        <h3 data-i18n="featureQuizzes">Quizzes & Projects</h3>
+                        <p data-i18n="featureQuizzesText">
+                            Test your understanding and apply what you learn.
                         </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">📊</div>
-                        <h3>Learning Progress</h3>
-                        <p>
-                            Track completed lessons, course progress,
-                            and your quiz results.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🏆</div>
-                        <h3>Achievements</h3>
-                        <p>
-                            Celebrate your learning milestones
-                            and completed learning paths.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🌍</div>
-                        <h3>Learn Your Way</h3>
-                        <p>
-                            Explore programming concepts in Arabic
-                            and English at your own pace.
-                        </p>
-                    </div>
+                    </article>
 
                 </div>
 
             </section>
 
-            <!-- Learning Dashboard Preview -->
-            <section class="dashboard-section">
+            <section id="dashboard" class="dashboard-section">
 
-                <div class="dashboard-heading">
+                <div class="section-heading">
+                    <span class="eyebrow" data-i18n="progressEyebrow">
+                        YOUR LEARNING SPACE
+                    </span>
 
-                    <div>
-                        <span class="section-label">YOUR LEARNING SPACE</span>
+                    <h2 data-i18n="progressTitle">
+                        My Learning <span class="gradient-text">Progress</span>
+                    </h2>
 
-                        <h2>
-                            Track Your
-                            <span>Progress</span>
-                        </h2>
-
-                        <p>
-                            Your learning journey, organized in one place.
-                        </p>
-                    </div>
-
-                    <div class="dashboard-icon">📈</div>
-
-                </div>
-
-                <div class="dashboard-preview">
-
-                    <div class="dashboard-stat">
-                        <span>📚</span>
-                        <div>
-                            <h3 id="activeCourses">0</h3>
-                            <p>Active Courses</p>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-stat">
-                        <span>✅</span>
-                        <div>
-                            <h3 id="completedLessons">0</h3>
-                            <p>Completed Lessons</p>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-stat">
-                        <span>🎯</span>
-                        <div>
-                            <h3 id="overallProgress">0%</h3>
-                            <p>Overall Progress</p>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="progress-message">
-                    <span>✨</span>
-                    <p>
-                        Every lesson brings you one step closer
-                        to your programming goals.
+                    <p data-i18n="progressDescription">
+                        Your progress will appear here as you complete lessons.
                     </p>
                 </div>
 
-            </section>            <!-- Footer -->
-            <footer class="footer">
-
-                <div class="footer-content">
-
-                    <div class="footer-brand">
-
-                        <a href="#" class="logo">
-                            <span class="logo-icon">C</span>
-                            <span>CODE<span class="logo-highlight">VERSE</span></span>
-                        </a>
-
-                        <p>
-                            Explore Code. Build Your Future.
-                            Learn programming and turn your ideas into reality.
-                        </p>
-
-                    </div>
-
-                    <div class="footer-links">
-
-                        <h3>Explore</h3>
-                        <a href="#home">Home</a>
-                        <a href="#courses">Courses</a>
-                        <a href="#about">About Us</a>
-
-                    </div>
-
-                    <div class="footer-links">
-
-                        <h3>Learning Paths</h3>
-                        <a href="#courses">Java</a>
-                        <a href="#courses">JavaScript</a>
-                        <a href="#courses">HTML & CSS</a>
-                        <a href="#courses">PHP & Dart</a>
-
-                    </div>
-
+                <div id="progressDashboard" class="progress-dashboard">
+                    <!-- Progress information will be generated by JavaScript. -->
                 </div>
 
-                <div class="footer-bottom">
-
-                    <p>
-                        © 2026 CODEVERSE. All Rights Reserved.
-                    </p>
-
-                    <p>Made for Future Developers 💜</p>
-
-                </div>
-
-            </footer>
+            </section>
 
         </main>
+
+        <footer class="footer">
+            <a href="#home" class="brand">
+                <span class="brand-icon">&lt;/&gt;</span>
+                <span>CODE<span class="brand-highlight">VERSE</span></span>
+            </a>
+
+            <p data-i18n="footerText">
+                Explore Code. Build Your Future.
+            </p>
+
+            <span>© 2026 CODEVERSE</span>
+        </footer>
+
+        <section id="courseViewer" class="course-viewer" hidden>
+
+            <button id="backToCourses" class="secondary-btn" type="button">
+                ← Back to Courses
+            </button>
+
+            <div class="viewer-header">
+                <span id="viewerCourseLevel" class="eyebrow"></span>
+                <h1 id="viewerCourseTitle">Course Title</h1>
+                <p id="viewerCourseDescription"></p>
+                <div id="courseProgressBox"></div>
+            </div>
+
+            <div class="learning-layout">
+
+                <aside class="lessons-sidebar">
+                    <h2>Course Curriculum</h2>
+                    <div id="lessonsList"></div>
+                </aside>
+
+                <main class="lesson-content">
+                    <div id="lessonDetails">
+                        <h2>Welcome to CODEVERSE</h2>
+                        <p>Select a lesson to begin learning.</p>
+                    </div>
+                </main>
+
+            </div>
+
+        </section>
 
     </div>
 
     <script src="script.js"></script>
-
-<!-- CODEVERSE COURSE VIEWER -->
-
-<section id="courseViewer" class="course-viewer" hidden>
-
-    <button id="backToCourses" class="secondary-btn">
-        ← Back to Courses
-    </button>
-
-    <div class="viewer-header">
-        <h1 id="viewerCourseTitle">Course Title</h1>
-        <p id="viewerCourseDescription">
-            Start your learning journey.
-        </p>
-    </div>
-
-    <div class="learning-layout">
-
-        <aside class="lessons-sidebar">
-            <h2>Course Lessons</h2>
-            <div id="lessonsList"></div>
-        </aside>
-
-        <main class="lesson-content">
-            <div id="lessonDetails">
-                <h2>Welcome to CODEVERSE</h2>
-                <p>Select a lesson to begin learning.</p>
-            </div>
-        </main>
-
-    </div>
-
-</section>
 
 </body>
 </html>
