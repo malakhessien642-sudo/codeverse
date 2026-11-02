@@ -341,4 +341,108 @@ function openCourse(courseKey) {
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+}// ==============================
+// CODEVERSE COURSE FIX
+// ==============================
+
+function openRealCourse(courseKey) {
+
+    const viewer = document.getElementById("courseViewer");
+    const title = document.getElementById("viewerCourseTitle");
+    const description = document.getElementById("viewerCourseDescription");
+    const lessons = document.getElementById("lessonsList");
+    const details = document.getElementById("lessonDetails");
+
+    document.querySelectorAll(
+        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
+    ).forEach(section => section.hidden = true);
+
+    viewer.hidden = false;
+    title.textContent = courseNames[courseKey];
+    description.textContent = "Your learning journey starts here.";
+    lessons.innerHTML = "";
+    details.innerHTML = "<h2>Loading lessons...</h2>";
+
+    function showLessons() {
+
+        const course = window.courseData?.[courseKey];
+
+        if (!course) {
+            details.innerHTML = "<h2>Course content not found.</h2>";
+            return;
+        }
+
+        title.textContent = course.title;
+        description.textContent = course.description;
+
+        course.units.forEach(unit => {
+
+            const heading = document.createElement("h3");
+            heading.textContent = unit.title;
+            lessons.appendChild(heading);
+
+            unit.lessons.forEach(lesson => {
+
+                const button = document.createElement("button");
+                button.className = "secondary-btn";
+                button.textContent = lesson.title;
+                button.style.width = "100%";
+
+                button.addEventListener("click", () => {
+                    details.innerHTML = lesson.content;
+                });
+
+                lessons.appendChild(button);
+
+            });
+
+        });
+
+        const firstLesson = lessons.querySelector("button");
+        if (firstLesson) firstLesson.click();
+    }
+
+    if (window.courseData?.[courseKey]) {
+        showLessons();
+    } else {
+        const script = document.createElement("script");
+        script.src = courseKey + ".js";
+
+        script.onload = showLessons;
+
+        script.onerror = () => {
+            details.innerHTML = "<h2>Could not load this course.</h2>";
+        };
+
+        document.body.appendChild(script);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+// Intercept course clicks before the old handlers
+
+document.addEventListener("click", function(event) {
+
+    const card = event.target.closest(".course-card");
+
+    if (!card) return;
+
+    const cards = Array.from(
+        document.querySelectorAll(".course-card")
+    );
+
+    const index = cards.indexOf(card);
+
+    const keys = ["java", "javascript", "html", "css", "php", "dart"];
+
+    if (!keys[index]) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    localStorage.setItem("codeverse-current-course", keys[index]);
+
+    openRealCourse(keys[index]);
+
+}, true);
