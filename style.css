@@ -1428,4 +1428,167 @@ body.light-mode .footer .logo {
         padding: 20px;
     }
 
+}/* ==============================
+   CODEVERSE LESSON COMPONENTS
+============================== */
+
+#lessonDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    line-height: 1.9;
+}
+
+#lessonDetails h2 {
+    font-size: 27px;
+    color: var(--text);
+}
+
+#lessonDetails h3 {
+    font-size: 19px;
+    color: #A78BFA;
+    margin-bottom: 12px;
+}
+
+#lessonDetails p,
+#lessonDetails li {
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+/* EXPLANATION BOX */
+
+.explanation-box {
+    padding: 25px;
+    border-radius: 18px;
+    background: rgba(139, 92, 246, 0.09);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* CODE EXAMPLE BOX */
+
+.code-example-box {
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(34, 211, 238, 0.06);
+    border: 1px solid rgba(34, 211, 238, 0.25);
+}
+
+#lessonDetails pre {
+    direction: ltr;
+    text-align: left;
+    white-space: pre;
+    overflow-x: auto;
+    padding: 22px;
+    border-radius: 12px;
+    background: #111827;
+    color: #A5F3FC;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* PRACTICE BOX */
+
+.practice-box {
+    padding: 25px;
+    border-radius: 18px;
+    background: rgba(245, 158, 11, 0.07);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.practice-box h3 {
+    color: #FBBF24 !important;
+}
+
+/* OUTPUT BOX */
+
+.output-box {
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* IMPORTANT NOTES */
+
+.note-box {
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(59, 130, 246, 0.08);
+    border-left: 4px solid #3B82F6;
+}
+
+/* COMMON MISTAKES */
+
+.mistakes-box {
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(239, 68, 68, 0.06);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* CODE BUTTONS */
+
+.copy-code-btn,
+.run-code-btn,
+.complete-lesson-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.copy-code-btn {
+    background: #312E81;
+    color: white;
+}
+
+.run-code-btn {
+    background: #0891B2;
+    color: white;
+}
+
+.complete-lesson-btn {
+    background: #059669;
+    color: white;
+}
+
+.copy-code-btn:hover,
+.run-code-btn:hover,
+.complete-lesson-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    #lessonDetails {
+        gap: 16px;
+    }
+
+    .explanation-box,
+    .code-example-box,
+    .practice-box,
+    .mistakes-box {
+        padding: 17px;
+    }
+
+    #lessonDetails h2 {
+        font-size: 23px;
+    }
+
+    #lessonDetails p,
+    #lessonDetails li {
+        font-size: 14px;
+    }
+
+    #lessonDetails pre {
+        font-size: 12px;
+        padding: 15px;
+    }
+
 }
