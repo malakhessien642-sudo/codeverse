@@ -479,4 +479,156 @@ function copyLessonCode(elementId) {
             alert("Unable to copy. Please copy the code manually.");
         });
 
+}// ==============================
+// LESSON PROGRESS SYSTEM
+// ==============================
+
+function getCourseProgress(courseKey) {
+
+    const course = window.courseData?.[courseKey];
+
+    if (!course) return { total: 0, completed: 0 };
+
+    const allLessons = course.units.flatMap(unit => unit.lessons);
+
+    const saved = JSON.parse(
+        localStorage.getItem("codeverse-completed") || "{}"
+    );
+
+    const completed = saved[courseKey] || [];
+
+    return {
+        total: allLessons.length,
+        completed: completed.length
+    };
 }
+
+function updateLessonProgress(courseKey) {
+
+    const progress = getCourseProgress(courseKey);
+
+    const percentage = progress.total
+        ? Math.round(progress.completed / progress.total * 100)
+        : 0;
+
+    let progressBox = document.getElementById("courseProgressBox");
+
+    if (!progressBox) {
+
+        progressBox = document.createElement("div");
+
+        progressBox.id = "courseProgressBox";
+
+        document.querySelector(".viewer-header")
+            .appendChild(progressBox);
+
+    }
+
+    progressBox.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin:15px 0 8px">
+            <strong>Course Progress</strong>
+            <strong>${percentage}%</strong>
+        </div>
+
+        <div style="height:10px;background:var(--border);border-radius:20px;overflow:hidden">
+            <div style="
+                width:${percentage}%;
+                height:100%;
+                background:linear-gradient(90deg,#8B5CF6,#22D3EE);
+                border-radius:20px;
+                transition:width .4s">
+            </div>
+        </div>
+
+        <p style="margin-top:8px;color:var(--text-secondary)">
+            ${progress.completed} of ${progress.total} lessons completed
+        </p>
+    `;
+}
+
+function completeCurrentLesson(courseKey, lessonTitle) {
+
+    const saved = JSON.parse(
+        localStorage.getItem("codeverse-completed") || "{}"
+    );
+
+    if (!saved[courseKey]) {
+        saved[courseKey] = [];
+    }
+
+    if (!saved[courseKey].includes(lessonTitle)) {
+        saved[courseKey].push(lessonTitle);
+    }
+
+    localStorage.setItem(
+        "codeverse-completed",
+        JSON.stringify(saved)
+    );
+
+    updateLessonProgress(courseKey);
+
+    const button = document.getElementById("completeLessonBtn");
+
+    if (button) {
+        button.textContent = "✓ Lesson Completed";
+        button.disabled = true;
+    }
+
+}
+
+// Add completion button whenever a lesson is displayed
+
+const lessonObserver = new MutationObserver(() => {
+
+    const details = document.getElementById("lessonDetails");
+
+    if (!details || !details.innerHTML.trim()) return;
+
+    if (details.querySelector("#completeLessonBtn")) return;
+
+    const courseKey = localStorage.getItem(
+        "codeverse-current-course"
+    );
+
+    if (!courseKey || !window.courseData?.[courseKey]) return;
+
+    const currentLesson = window.courseData[courseKey]
+        .units.flatMap(unit => unit.lessons)
+        .find(lesson => lesson.content === details.innerHTML);
+
+    if (!currentLesson) return;
+
+    const saved = JSON.parse(
+        localStorage.getItem("codeverse-completed") || "{}"
+    );
+
+    const isCompleted = (saved[courseKey] || [])
+        .includes(currentLesson.title);
+
+    const button = document.createElement("button");
+
+    button.id = "completeLessonBtn";
+    button.className = "complete-lesson-btn";
+
+    button.textContent = isCompleted
+        ? "✓ Lesson Completed"
+        : "✓ Mark as Complete";
+
+    button.disabled = isCompleted;
+
+    button.style.marginTop = "25px";
+
+    button.addEventListener("click", () => {
+        completeCurrentLesson(courseKey, currentLesson.title);
+    });
+
+    details.appendChild(button);
+
+    updateLessonProgress(courseKey);
+
+});
+
+lessonObserver.observe(
+    document.getElementById("lessonDetails"),
+    { childList: true, subtree: true }
+);
