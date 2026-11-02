@@ -1,709 +1,1352 @@
-// ==============================
-// CODEVERSE THEME SYSTEM
-// ==============================
+/* =====================================
+   CODEVERSE
+   CENTRAL LEARNING SYSTEM
+===================================== */
 
-const themeBtn = document.getElementById("themeBtn");
+"use strict";
 
-const savedTheme = localStorage.getItem("codeverse-theme");
+// =====================================
+// COURSE DATABASE
+// =====================================
 
-if (savedTheme === "light") {
-    document.body.classList.add("light-mode");
-    themeBtn.textContent = "☾";
-} else {
-    document.body.classList.remove("light-mode");
-    themeBtn.textContent = "☀";
-}
+const CODEVERSE_COURSES = {
 
-themeBtn.addEventListener("click", () => {
+    java: {
+        id: "java",
+        title: "Java Programming",
+        icon: "☕",
+        level: "Beginner to Advanced",
+        description: "Master Java programming from the fundamentals to advanced development.",
+        language: "Java",
+        file: "java.js"
+    },
 
-    document.body.classList.toggle("light-mode");
+    javascript: {
+        id: "javascript",
+        title: "JavaScript",
+        icon: "🟨",
+        level: "Beginner to Advanced",
+        description: "Learn modern JavaScript and build interactive applications.",
+        language: "JavaScript",
+        file: "javascript.js"
+    },
 
-    const isLight = document.body.classList.contains("light-mode");
+    html: {
+        id: "html",
+        title: "HTML5",
+        icon: "🌐",
+        level: "Beginner to Advanced",
+        description: "Learn how to structure professional and accessible websites.",
+        language: "HTML",
+        file: "html.js"
+    },
 
-    if (isLight) {
-        themeBtn.textContent = "☾";
-        localStorage.setItem("codeverse-theme", "light");
-    } else {
-        themeBtn.textContent = "☀";
-        localStorage.setItem("codeverse-theme", "dark");
+    css: {
+        id: "css",
+        title: "CSS3",
+        icon: "🎨",
+        level: "Beginner to Advanced",
+        description: "Master modern web styling, layouts, animations, and responsive design.",
+        language: "CSS",
+        file: "css.js"
+    },
+
+    php: {
+        id: "php",
+        title: "PHP Development",
+        icon: "🐘",
+        level: "Beginner to Advanced",
+        description: "Learn server-side programming and dynamic web development.",
+        language: "PHP",
+        file: "php.js"
+    },
+
+    dart: {
+        id: "dart",
+        title: "Dart Programming",
+        icon: "🎯",
+        level: "Beginner to Advanced",
+        description: "Learn Dart programming and prepare for Flutter development.",
+        language: "Dart",
+        file: "dart.js"
     }
 
-});// ==============================
-// CODEVERSE LANGUAGE SYSTEM
-// ==============================
+};
 
-const languageBtn = document.getElementById("languageBtn");
+// =====================================
+// GLOBAL APPLICATION STATE
+// =====================================
 
-let currentLanguage =
-    localStorage.getItem("codeverse-language") || "en";
+const CODEVERSE_STATE = {
 
-const translations = {
+    currentCourse: null,
+
+    currentUnit: 0,
+
+    currentLesson: 0,
+
+    currentLanguage: "en",
+
+    theme: "dark",
+
+    courses: CODEVERSE_COURSES
+
+};
+
+// =====================================
+// STORAGE SYSTEM
+// =====================================
+
+const CODEVERSE_STORAGE = {
+
+    get(key, fallback = null) {
+
+        try {
+
+            const value = localStorage.getItem(
+                "codeverse-" + key
+            );
+
+            return value === null
+                ? fallback
+                : JSON.parse(value);
+
+        } catch (error) {
+
+            return fallback;
+
+        }
+
+    },
+
+    set(key, value) {
+
+        try {
+
+            localStorage.setItem(
+                "codeverse-" + key,
+                JSON.stringify(value)
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error("Storage error:", error);
+
+            return false;
+
+        }
+
+    }
+
+};// =====================================
+// RENDER COURSE CARDS
+// =====================================
+
+function renderCourses() {
+
+    const container = document.getElementById("coursesGrid");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    Object.values(CODEVERSE_COURSES).forEach(course => {
+
+        const card = document.createElement("article");
+
+        card.className = "course-card";
+        card.dataset.course = course.id;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+
+        card.innerHTML = `
+            <div class="course-icon">
+                ${course.icon}
+            </div>
+
+            <h3>${course.title}</h3>
+
+            <p>${course.description}</p>
+
+            <div class="course-meta">
+                <span>${course.level}</span>
+                <span>${course.language}</span>
+            </div>
+
+            <div class="course-start">
+                <span>Start Learning</span>
+                <span>→</span>
+            </div>
+        `;
+
+        card.addEventListener("click", () => {
+            openCourse(course.id);
+        });
+
+        card.addEventListener("keydown", event => {
+
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openCourse(course.id);
+            }
+
+        });
+
+        container.appendChild(card);
+
+    });
+
+}// =====================================
+// LOAD COURSE DATA
+// =====================================
+
+async function loadCourseData(courseId) {
+
+    const course = CODEVERSE_COURSES[courseId];
+
+    if (!course) {
+        console.error("Course not found:", courseId);
+        return null;
+    }
+
+    try {
+
+        const response = await fetch(course.file);
+
+        if (!response.ok) {
+            throw new Error("Course file could not be loaded");
+        }
+
+        const module = await response.text();
+
+        const script = document.createElement("script");
+
+        script.textContent = module;
+
+        document.body.appendChild(script);
+
+        return window.CODEVERSE_LESSONS?.[courseId] || null;
+
+    } catch (error) {
+
+        console.error("Course loading error:", error);
+
+        return null;
+
+    }
+
+}// =====================================
+// OPEN COURSE VIEWER
+// =====================================
+
+function loadCourseScript(course) {
+
+    return new Promise((resolve, reject) => {
+
+        const script = document.createElement("script");
+
+        script.src = course.file;
+
+        script.onload = () => resolve(true);
+
+        script.onerror = () => reject(
+            new Error("Failed to load " + course.file)
+        );
+
+        document.body.appendChild(script);
+
+    });
+
+}
+
+async function openCourse(courseId) {
+
+    const course = CODEVERSE_COURSES[courseId];
+
+    if (!course) return;
+
+    CODEVERSE_STATE.currentCourse = courseId;
+
+    const viewer = document.getElementById("courseViewer");
+
+    if (!viewer) return;
+
+    viewer.hidden = false;
+
+    document.getElementById("viewerCourseTitle").textContent =
+        course.title;
+
+    document.getElementById("viewerCourseDescription").textContent =
+        course.description;
+
+    document.getElementById("viewerCourseLevel").textContent =
+        course.level;
+
+    document.getElementById("lessonsList").textContent =
+        "Loading lessons...";
+
+    document.getElementById("lessonDetails").textContent =
+        "Select a lesson to begin.";
+
+    document.getElementById("courses").scrollIntoView();
+
+    try {
+
+        await loadCourseScript(course);
+
+        console.log("Course loaded:", courseId);
+
+    } catch (error) {
+
+        document.getElementById("lessonsList").textContent =
+            "Unable to load this course yet.";
+
+        console.error(error);
+
+    }
+
+}// =====================================
+// BACK TO COURSES
+// =====================================
+
+function backToCourses() {
+
+    const viewer = document.getElementById("courseViewer");
+
+    const courses = document.getElementById("courses");
+
+    if (!viewer || !courses) return;
+
+    viewer.hidden = true;
+
+    CODEVERSE_STATE.currentCourse = null;
+
+    CODEVERSE_STATE.currentUnit = 0;
+
+    CODEVERSE_STATE.currentLesson = 0;
+
+    courses.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+// =====================================
+// BACK BUTTON EVENT
+// =====================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const backButton = document.getElementById("backToCourses");
+
+    if (backButton) {
+        backButton.addEventListener("click", backToCourses);
+    }
+
+});// =====================================
+// RENDER COURSE LESSONS
+// =====================================
+
+function renderLessons(courseId) {
+
+    const container = document.getElementById("lessonsList");
+
+    const units = window.CODEVERSE_LESSONS?.[courseId];
+
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!Array.isArray(units) || units.length === 0) {
+        container.textContent = "No lessons available yet.";
+        return;
+    }
+
+    units.forEach((unit, unitIndex) => {
+
+        const unitBox = document.createElement("div");
+        unitBox.className = "lesson-unit";
+
+        const heading = document.createElement("h3");
+        heading.textContent = unit.title;
+
+        unitBox.appendChild(heading);
+
+        unit.lessons.forEach((lesson, lessonIndex) => {
+
+            const button = document.createElement("button");
+
+            button.className = "lesson-item";
+            button.textContent = lesson.title;
+
+            button.addEventListener("click", () => {
+                selectLesson(courseId, unitIndex, lessonIndex);
+            });
+
+            unitBox.appendChild(button);
+
+        });
+
+        container.appendChild(unitBox);
+
+    });
+
+}// =====================================
+// SELECT AND DISPLAY LESSON
+// =====================================
+
+function selectLesson(courseId, unitIndex, lessonIndex) {
+
+    const units = window.CODEVERSE_LESSONS?.[courseId];
+
+    if (!units || !units[unitIndex]) return;
+
+    const lesson = units[unitIndex].lessons?.[lessonIndex];
+
+    if (!lesson) return;
+
+    CODEVERSE_STATE.currentCourse = courseId;
+    CODEVERSE_STATE.currentUnit = unitIndex;
+    CODEVERSE_STATE.currentLesson = lessonIndex;
+
+    const details = document.getElementById("lessonDetails");
+
+    if (!details) return;
+
+    details.replaceChildren();
+
+    const title = document.createElement("h2");
+    title.textContent = lesson.title;
+
+    const duration = document.createElement("p");
+    duration.textContent = lesson.duration || "Self-paced lesson";
+
+    const description = document.createElement("p");
+    description.textContent =
+        lesson.description || "Start learning this lesson.";
+
+    details.append(title, duration, description);
+
+    details.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+// =====================================
+// UPDATED COURSE OPENING
+// =====================================
+
+async function openCourse(courseId) {
+
+    const course = CODEVERSE_COURSES[courseId];
+
+    if (!course) return;
+
+    CODEVERSE_STATE.currentCourse = courseId;
+
+    const viewer = document.getElementById("courseViewer");
+
+    if (!viewer) return;
+
+    viewer.hidden = false;
+
+    document.getElementById("viewerCourseTitle").textContent =
+        course.title;
+
+    document.getElementById("viewerCourseDescription").textContent =
+        course.description;
+
+    document.getElementById("viewerCourseLevel").textContent =
+        course.level;
+
+    document.getElementById("lessonsList").textContent =
+        "Loading lessons...";
+
+    document.getElementById("lessonDetails").textContent =
+        "Select a lesson to begin.";
+
+    try {
+
+        await loadCourseScript(course);
+
+        renderLessons(courseId);
+
+    } catch (error) {
+
+        document.getElementById("lessonsList").textContent =
+            "Unable to load this course yet.";
+
+        console.error(error);
+
+    }
+
+}// =====================================
+// LESSON CONTENT RENDERER
+// =====================================
+
+function createLessonElement(tag, className, content) {
+
+    const element = document.createElement(tag);
+
+    if (className) element.className = className;
+
+    if (content !== undefined) {
+        element.textContent = content;
+    }
+
+    return element;
+
+}
+
+function renderLessonContent(lesson) {
+
+    const details = document.getElementById("lessonDetails");
+
+    if (!details || !lesson) return;
+
+    details.replaceChildren();
+
+    const title = createLessonElement(
+        "h2",
+        "lesson-title",
+        lesson.title
+    );
+
+    details.appendChild(title);
+
+    if (lesson.duration) {
+        details.appendChild(
+            createLessonElement("p", "lesson-duration", lesson.duration)
+        );
+    }
+
+    // Learning Objectives
+
+    if (lesson.objectives?.length) {
+
+        const section = createLessonElement(
+            "section",
+            "lesson-objectives"
+        );
+
+        section.appendChild(
+            createLessonElement("h3", "", "Learning Objectives")
+        );
+
+        const list = document.createElement("ul");
+
+        lesson.objectives.forEach(item => {
+            list.appendChild(
+                createLessonElement("li", "", item)
+            );
+        });
+
+        section.appendChild(list);
+        details.appendChild(section);
+
+    }
+
+}// =====================================
+// LESSON SECTIONS RENDERER
+// =====================================
+
+function renderLessonSections(lesson, container) {
+
+    if (!Array.isArray(lesson.sections)) return;
+
+    lesson.sections.forEach(section => {
+
+        const box = document.createElement("section");
+        box.className = "lesson-section";
+
+        const heading = document.createElement("h3");
+        heading.textContent = section.title || "Lesson Content";
+
+        box.appendChild(heading);
+
+        if (section.type === "explanation") {
+
+            const text = document.createElement("p");
+            text.textContent = section.text || "";
+            box.appendChild(text);
+
+        }
+
+        if (section.type === "code") {
+
+            const code = document.createElement("pre");
+            const codeText = document.createElement("code");
+
+            codeText.textContent = section.code || "";
+            code.appendChild(codeText);
+
+            box.appendChild(code);
+
+            if (section.output) {
+
+                const output = document.createElement("p");
+                output.className = "lesson-output";
+                output.textContent = "Expected Output: " + section.output;
+
+                box.appendChild(output);
+
+            }
+
+        }
+
+        container.appendChild(box);
+
+    });
+
+}// =====================================
+// UPDATE LESSON DISPLAY
+// =====================================
+
+function selectLesson(courseId, unitIndex, lessonIndex) {
+
+    const units = window.CODEVERSE_LESSONS?.[courseId];
+
+    const lesson = units?.[unitIndex]?.lessons?.[lessonIndex];
+
+    if (!lesson) return;
+
+    CODEVERSE_STATE.currentCourse = courseId;
+    CODEVERSE_STATE.currentUnit = unitIndex;
+    CODEVERSE_STATE.currentLesson = lessonIndex;
+
+    const details = document.getElementById("lessonDetails");
+
+    if (!details) return;
+
+    details.replaceChildren();
+
+    renderLessonContent(lesson);
+
+    renderLessonSections(lesson, details);
+
+    details.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}// =====================================
+// LINE BY LINE CODE EXPLANATION
+// =====================================
+
+function renderCodeExplanation(section, container) {
+
+    if (!section.explanation?.length) return;
+
+    const box = document.createElement("div");
+    box.className = "code-explanation";
+
+    const heading = document.createElement("h4");
+    heading.textContent = "Line-by-Line Explanation";
+
+    box.appendChild(heading);
+
+    const list = document.createElement("ol");
+
+    section.explanation.forEach(item => {
+
+        const line = document.createElement("li");
+
+        line.textContent = item;
+
+        list.appendChild(line);
+
+    });
+
+    box.appendChild(list);
+
+    container.appendChild(box);
+
+}// =====================================
+// COMMON MISTAKES RENDERER
+// =====================================
+
+function renderCommonMistakes(section, container) {
+
+    if (!section.items?.length) return;
+
+    const box = document.createElement("section");
+    box.className = "lesson-mistakes";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Common Mistakes";
+
+    box.appendChild(heading);
+
+    section.items.forEach(item => {
+
+        const mistake = document.createElement("div");
+        mistake.className = "mistake-item";
+
+        const title = document.createElement("h4");
+        title.textContent = item.title || "Common Mistake";
+
+        const description = document.createElement("p");
+        description.textContent = item.description || "";
+
+        mistake.append(title, description);
+        box.appendChild(mistake);
+
+    });
+
+    container.appendChild(box);
+
+}// =====================================
+// COMPLETE LESSON SECTIONS
+// =====================================
+
+function renderLessonSections(lesson, container) {
+
+    if (!Array.isArray(lesson.sections)) return;
+
+    lesson.sections.forEach(section => {
+
+        const box = document.createElement("section");
+        box.className = "lesson-section";
+
+        const heading = document.createElement("h3");
+        heading.textContent = section.title || "Lesson Content";
+
+        box.appendChild(heading);
+
+        if (section.type === "explanation") {
+
+            const text = document.createElement("p");
+            text.textContent = section.text || "";
+            box.appendChild(text);
+
+        }
+
+        if (section.type === "code") {
+
+            const pre = document.createElement("pre");
+            const code = document.createElement("code");
+
+            code.textContent = section.code || "";
+
+            pre.appendChild(code);
+            box.appendChild(pre);
+
+            if (section.output) {
+                const output = document.createElement("p");
+                output.textContent = "Expected Output: " + section.output;
+                box.appendChild(output);
+            }
+
+            renderCodeExplanation(section, box);
+
+        }
+
+        if (section.type === "mistakes") {
+            renderCommonMistakes(section, box);
+        }
+
+        if (section.type === "practice") {
+
+            const instructions = document.createElement("p");
+            instructions.textContent = section.instructions || "";
+
+            const editor = document.createElement("textarea");
+            editor.className = "practice-editor";
+            editor.value = section.starterCode || "";
+            editor.placeholder = "Write your code here...";
+
+            box.append(instructions, editor);
+
+        }
+
+        container.appendChild(box);
+
+    });
+
+}// =====================================
+// LESSON QUIZ RENDERER
+// =====================================
+
+function renderLessonQuiz(section, container) {
+
+    if (!section.questions?.length) return;
+
+    const box = document.createElement("section");
+    box.className = "lesson-quiz";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Knowledge Check";
+
+    box.appendChild(heading);
+
+    section.questions.forEach((question, index) => {
+
+        const item = document.createElement("div");
+        item.className = "quiz-question";
+
+        const title = document.createElement("h4");
+        title.textContent = `${index + 1}. ${question.question}`;
+
+        item.appendChild(title);
+
+        question.options.forEach((option, optionIndex) => {
+
+            const label = document.createElement("label");
+            const input = document.createElement("input");
+
+            input.type = "radio";
+            input.name = `quiz-${index}`;
+            input.value = optionIndex;
+
+            label.append(input, document.createTextNode(option));
+
+            item.appendChild(label);
+
+        });
+
+        const result = document.createElement("p");
+        result.className = "quiz-result";
+
+        const check = document.createElement("button");
+        check.type = "button";
+        check.textContent = "Check Answer";
+
+        check.addEventListener("click", () => {
+
+            const selected = item.querySelector(
+                `input[name="quiz-${index}"]:checked`
+            );
+
+            if (!selected) {
+                result.textContent = "Choose an answer first.";
+                return;
+            }
+
+            const correct = Number(selected.value) === question.answer;
+
+            result.textContent = correct
+                ? "Correct! " + (question.explanation || "")
+                : "Not quite. Try again!";
+
+        });
+
+        item.append(check, result);
+        box.appendChild(item);
+
+    });
+
+    container.appendChild(box);
+
+}// =====================================
+// CONNECT QUIZ TO LESSON VIEWER
+// =====================================
+
+function renderLessonSections(lesson, container) {
+
+    if (!Array.isArray(lesson.sections)) return;
+
+    lesson.sections.forEach(section => {
+
+        const box = document.createElement("section");
+        box.className = "lesson-section";
+
+        const heading = document.createElement("h3");
+        heading.textContent = section.title || "Lesson Content";
+
+        box.appendChild(heading);
+
+        if (section.type === "explanation") {
+
+            const text = document.createElement("p");
+            text.textContent = section.text || "";
+            box.appendChild(text);
+
+        }
+
+        else if (section.type === "code") {
+
+            const pre = document.createElement("pre");
+            const code = document.createElement("code");
+
+            code.textContent = section.code || "";
+
+            pre.appendChild(code);
+            box.appendChild(pre);
+
+            if (section.output) {
+                const output = document.createElement("p");
+                output.textContent = "Expected Output: " + section.output;
+                box.appendChild(output);
+            }
+
+            renderCodeExplanation(section, box);
+
+        }
+
+        else if (section.type === "mistakes") {
+            renderCommonMistakes(section, box);
+        }
+
+        else if (section.type === "practice") {
+
+            const instructions = document.createElement("p");
+            instructions.textContent = section.instructions || "";
+
+            const editor = document.createElement("textarea");
+            editor.className = "practice-editor";
+            editor.value = section.starterCode || "";
+
+            box.append(instructions, editor);
+
+        }
+
+        else if (section.type === "quiz") {
+            renderLessonQuiz(section, box);
+        }
+
+        container.appendChild(box);
+
+    });
+
+}// =====================================
+// QUIZ SCORE SYSTEM
+// =====================================
+
+function renderLessonQuiz(section, container) {
+
+    if (!section.questions?.length) return;
+
+    const box = document.createElement("section");
+    box.className = "lesson-quiz";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Knowledge Check";
+
+    const scoreBox = document.createElement("p");
+    scoreBox.className = "quiz-score";
+    scoreBox.textContent = "Answer all questions to see your score.";
+
+    const answers = {};
+
+    section.questions.forEach((question, index) => {
+
+        const item = document.createElement("div");
+        item.className = "quiz-question";
+
+        const title = document.createElement("h4");
+        title.textContent = `${index + 1}. ${question.question}`;
+
+        item.appendChild(title);
+
+        question.options.forEach((option, optionIndex) => {
+
+            const label = document.createElement("label");
+            const input = document.createElement("input");
+
+            input.type = "radio";
+            input.name = `quiz-${index}`;
+            input.value = optionIndex;
+
+            input.addEventListener("change", () => {
+                answers[index] = optionIndex;
+            });
+
+            label.append(input, document.createTextNode(option));
+            item.appendChild(label);
+
+        });
+
+        box.appendChild(item);
+
+    });
+
+    const submit = document.createElement("button");
+    submit.textContent = "Submit Quiz";
+
+    submit.addEventListener("click", () => {
+
+        if (Object.keys(answers).length !== section.questions.length) {
+            scoreBox.textContent = "Answer all questions first.";
+            return;
+        }
+
+        let score = 0;
+
+        section.questions.forEach((question, index) => {
+            if (answers[index] === question.answer) score++;
+        });
+
+        scoreBox.textContent =
+            `Your Score: ${score} / ${section.questions.length}`;
+
+    });
+
+    box.append(submit, scoreBox);
+    container.appendChild(box);
+
+}// =====================================
+// STUDENT PROGRESS SYSTEM
+// =====================================
+
+function getCourseProgress(courseId) {
+
+    return CODEVERSE_STORAGE.get(
+        "progress-" + courseId,
+        []
+    );
+
+}
+
+function saveLessonProgress(courseId, lessonId) {
+
+    const progress = getCourseProgress(courseId);
+
+    if (!progress.includes(lessonId)) {
+
+        progress.push(lessonId);
+
+        CODEVERSE_STORAGE.set(
+            "progress-" + courseId,
+            progress
+        );
+
+    }
+
+    updateProgressDashboard();
+
+}
+
+function isLessonCompleted(courseId, lessonId) {
+
+    return getCourseProgress(courseId).includes(lessonId);
+
+}// =====================================
+// LESSON COMPLETION BUTTON
+// =====================================
+
+function addCompletionButton(lesson, courseId, container) {
+
+    const button = document.createElement("button");
+
+    const lessonId = lesson.id;
+
+    button.className = "complete-lesson-btn";
+
+    function updateButton() {
+
+        button.textContent = isLessonCompleted(courseId, lessonId)
+            ? "✓ Lesson Completed"
+            : "Mark as Completed";
+
+    }
+
+    updateButton();
+
+    button.addEventListener("click", () => {
+
+        saveLessonProgress(courseId, lessonId);
+
+        updateButton();
+
+    });
+
+    container.appendChild(button);
+
+}// =====================================
+// CONNECT COMPLETION TO LESSON VIEWER
+// =====================================
+
+function selectLesson(courseId, unitIndex, lessonIndex) {
+
+    const units = window.CODEVERSE_LESSONS?.[courseId];
+
+    const lesson = units?.[unitIndex]?.lessons?.[lessonIndex];
+
+    if (!lesson) return;
+
+    CODEVERSE_STATE.currentCourse = courseId;
+    CODEVERSE_STATE.currentUnit = unitIndex;
+    CODEVERSE_STATE.currentLesson = lessonIndex;
+
+    const details = document.getElementById("lessonDetails");
+
+    if (!details) return;
+
+    details.replaceChildren();
+
+    renderLessonContent(lesson);
+    renderLessonSections(lesson, details);
+
+    addCompletionButton(
+        lesson,
+        courseId,
+        details
+    );
+
+    details.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}// =====================================
+// COURSE PROGRESS CALCULATION
+// =====================================
+
+function calculateCourseProgress(courseId) {
+
+    const units = window.CODEVERSE_LESSONS?.[courseId];
+
+    if (!Array.isArray(units)) {
+        return {
+            completed: 0,
+            total: 0,
+            percentage: 0
+        };
+    }
+
+    const total = units.reduce((sum, unit) => {
+        return sum + (unit.lessons?.length || 0);
+    }, 0);
+
+    const completed = getCourseProgress(courseId).filter(id =>
+        units.some(unit =>
+            unit.lessons?.some(lesson => lesson.id === id)
+        )
+    ).length;
+
+    return {
+        completed,
+        total,
+        percentage: total
+            ? Math.round((completed / total) * 100)
+            : 0
+    };
+
+}// =====================================
+// PROGRESS DASHBOARD
+// =====================================
+
+function updateProgressDashboard() {
+
+    const dashboard = document.getElementById(
+        "progressDashboard"
+    );
+
+    if (!dashboard) return;
+
+    dashboard.replaceChildren();
+
+    Object.values(CODEVERSE_COURSES).forEach(course => {
+
+        const progress = calculateCourseProgress(course.id);
+
+        const card = document.createElement("div");
+        card.className = "progress-card";
+
+        const title = document.createElement("h3");
+        title.textContent = course.title;
+
+        const count = document.createElement("p");
+        count.textContent =
+            `${progress.completed} / ${progress.total} Lessons`;
+
+        const percentage = document.createElement("p");
+        percentage.textContent = progress.percentage + "%";
+
+        const bar = document.createElement("div");
+        bar.className = "progress-bar";
+
+        const fill = document.createElement("div");
+        fill.className = "progress-fill";
+
+        fill.style.width = progress.percentage + "%";
+
+        bar.appendChild(fill);
+
+        card.append(title, count, percentage, bar);
+
+        dashboard.appendChild(card);
+
+    });
+
+}// =====================================
+// THEME SYSTEM
+// =====================================
+
+function applyTheme(theme) {
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        theme
+    );
+
+    CODEVERSE_STATE.theme = theme;
+
+    CODEVERSE_STORAGE.set("theme", theme);
+
+    const button = document.getElementById("themeBtn");
+
+    if (button) {
+        button.textContent =
+            theme === "dark" ? "☀️" : "🌙";
+    }
+
+}
+
+function toggleTheme() {
+
+    const nextTheme =
+        CODEVERSE_STATE.theme === "dark"
+            ? "light"
+            : "dark";
+
+    applyTheme(nextTheme);
+
+}
+
+// =====================================
+// THEME INITIALIZATION
+// =====================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const savedTheme = CODEVERSE_STORAGE.get(
+        "theme",
+        "dark"
+    );
+
+    applyTheme(savedTheme);
+
+    const themeButton = document.getElementById("themeBtn");
+
+    if (themeButton) {
+        themeButton.addEventListener("click", toggleTheme);
+    }
+
+});// =====================================
+// LANGUAGE SYSTEM
+// =====================================
+
+const CODEVERSE_TRANSLATIONS = {
+
     en: {
         home: "Home",
         courses: "Courses",
-        about: "About",
-        explore: "Explore Courses",
-        heroTitle: "Explore Code. Build Your Future.",
-        heroDescription: "Start your programming journey with structured courses, practical lessons, and real projects.",
-        coursesTitle: "Explore Our Courses",
-        coursesDescription: "Choose your path and start building your future.",
-        aboutTitle: "Why CODEVERSE?",
-        dashboardTitle: "Your Learning Dashboard"
+        progress: "My Progress",
+        start: "Start Learning",
+        back: "Back to Courses",
+        completed: "Mark as Completed",
+        objectives: "Learning Objectives",
+        quiz: "Knowledge Check"
     },
 
     ar: {
         home: "الرئيسية",
         courses: "الكورسات",
-        about: "عن المنصة",
-        explore: "استكشف الكورسات",
-        heroTitle: "اكتشف البرمجة. وابنِ مستقبلك.",
-        heroDescription: "ابدأ رحلتك في البرمجة من خلال مسارات تعليمية منظمة ودروس عملية ومشروعات حقيقية.",
-        coursesTitle: "استكشف الكورسات",
-        coursesDescription: "اختار مسارك وابدأ في بناء مستقبلك.",
-        aboutTitle: "لماذا CODEVERSE؟",
-        dashboardTitle: "لوحة تقدمك التعليمية"
+        progress: "تقدمي",
+        start: "ابدأ التعلم",
+        back: "العودة للكورسات",
+        completed: "تم إكمال الدرس",
+        objectives: "أهداف التعلم",
+        quiz: "اختبر معلوماتك"
     }
+
 };
 
-function updateLanguage() {
+function applyLanguage(language) {
 
-    const lang = translations[currentLanguage];
+    const selected = language === "ar" ? "ar" : "en";
 
-    document.documentElement.lang = currentLanguage;
+    CODEVERSE_STATE.currentLanguage = selected;
+
+    document.documentElement.lang = selected;
+
     document.documentElement.dir =
-        currentLanguage === "ar" ? "rtl" : "ltr";
+        selected === "ar" ? "rtl" : "ltr";
 
-    const navLinks = document.querySelectorAll(".nav-links a");
+    CODEVERSE_STORAGE.set("language", selected);
 
-    navLinks[0].textContent = lang.home;
-    navLinks[1].textContent = lang.courses;
-    navLinks[2].textContent = lang.about;
+    document.querySelectorAll("[data-i18n]").forEach(element => {
 
-    languageBtn.textContent =
-        currentLanguage === "en" ? "EN / AR" : "AR / EN";
+        const key = element.dataset.i18n;
 
-    document.querySelector(".explore-btn").textContent = lang.explore;
+        const translation = CODEVERSE_TRANSLATIONS[selected][key];
 
-    document.querySelector(".hero h1").textContent = lang.heroTitle;
-
-    document.querySelector(".hero-description").textContent =
-        lang.heroDescription;
-
-    document.querySelector(".courses-section h2").textContent =
-        lang.coursesTitle;
-
-    document.querySelector(".features-section h2").textContent =
-        lang.aboutTitle;
-
-    document.querySelector(".dashboard-heading h2").textContent =
-        lang.dashboardTitle;
-
-    localStorage.setItem("codeverse-language", currentLanguage);
-}
-
-languageBtn.addEventListener("click", () => {
-
-    currentLanguage = currentLanguage === "en" ? "ar" : "en";
-
-    updateLanguage();
-
-});
-
-updateLanguage();// ==============================
-// COURSE NAVIGATION SYSTEM
-// ==============================
-
-const courseCards = document.querySelectorAll(".course-card");
-
-const courseNames = {
-    java: "Java",
-    javascript: "JavaScript",
-    html: "HTML",
-    css: "CSS",
-    php: "PHP",
-    dart: "Dart"
-};
-
-courseCards.forEach((card, index) => {
-
-    const courseKeys = [
-        "java",
-        "javascript",
-        "html",
-        "css",
-        "php",
-        "dart"
-    ];
-
-    const courseKey = courseKeys[index];
-
-    card.style.cursor = "pointer";
-
-    card.addEventListener("click", () => {
-
-        localStorage.setItem(
-            "codeverse-current-course",
-            courseKey
-        );
-
-        openCourse(courseKey);
-
-    });
-
-});
-
-function openCourse(courseKey) {
-
-    const courseName = courseNames[courseKey];
-
-    if (!courseName) return;
-
-    alert(
-        currentLanguage === "ar"
-        ? "تم اختيار كورس " + courseName +
-          ". جاري تجهيز صفحة الدروس!"
-        : courseName +
-          " course selected. Lesson viewer is being prepared!"
-    );
-
-}// ==============================
-// COURSE VIEWER NAVIGATION
-// ==============================
-
-const courseViewer = document.getElementById("courseViewer");
-const backToCourses = document.getElementById("backToCourses");
-
-const courseDescriptions = {
-    java: "Master Java programming step by step.",
-    javascript: "Build interactive websites with JavaScript.",
-    html: "Learn how to structure modern websites.",
-    css: "Create beautiful and responsive designs.",
-    php: "Learn server-side web development.",
-    dart: "Start programming with Dart."
-};
-
-function openCourse(courseKey) {
-
-    const courseName = courseNames[courseKey];
-
-    if (!courseName) return;
-
-    document.querySelectorAll(
-        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
-    ).forEach(section => {
-        section.hidden = true;
-    });
-
-    courseViewer.hidden = false;
-
-    document.getElementById("viewerCourseTitle").textContent =
-        courseName;
-
-    document.getElementById("viewerCourseDescription").textContent =
-        courseDescriptions[courseKey];
-
-    const lessonsList = document.getElementById("lessonsList");
-
-    lessonsList.innerHTML = "";
-
-    const lessonButton = document.createElement("button");
-
-    lessonButton.className = "secondary-btn";
-    lessonButton.textContent =
-        currentLanguage === "ar"
-        ? "مقدمة الكورس"
-        : "Course Introduction";
-
-    lessonButton.addEventListener("click", () => {
-
-        document.getElementById("lessonDetails").innerHTML = `
-            <h2>${courseName} - Introduction</h2>
-            <p>Welcome to ${courseName} in CODEVERSE.</p>
-            <p>Your learning journey starts here.</p>
-            <p>Detailed lessons and practical examples will be added next.</p>
-        `;
-
-    });
-
-    lessonsList.appendChild(lessonButton);
-
-    lessonButton.click();
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-}
-
-backToCourses.addEventListener("click", () => {
-
-    courseViewer.hidden = true;
-
-    document.querySelectorAll(
-        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
-    ).forEach(section => {
-        section.hidden = false;
-    });
-
-    document.getElementById("courses").scrollIntoView({
-        behavior: "smooth"
-    });
-
-});// ==============================
-// LOAD REAL COURSE CONTENT
-// ==============================
-
-function openCourse(courseKey) {
-
-    const courseViewer = document.getElementById("courseViewer");
-
-    document.querySelectorAll(
-        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
-    ).forEach(section => {
-        section.hidden = true;
-    });
-
-    courseViewer.hidden = false;
-
-    const title = document.getElementById("viewerCourseTitle");
-    const description = document.getElementById("viewerCourseDescription");
-    const lessonsList = document.getElementById("lessonsList");
-    const lessonDetails = document.getElementById("lessonDetails");
-
-    title.textContent = "Loading...";
-    lessonsList.innerHTML = "";
-    lessonDetails.innerHTML = "<h2>Loading course lessons...</h2>";
-
-    function displayCourse() {
-
-        const course = window.courseData?.[courseKey];
-
-        if (!course) {
-            lessonDetails.innerHTML =
-                "<h2>Course content not found.</h2>";
-            return;
+        if (translation) {
+            element.textContent = translation;
         }
 
-        title.textContent = course.title;
-        description.textContent = course.description;
+    });
 
-        lessonsList.innerHTML = "";
-
-        course.units.forEach((unit, unitIndex) => {
-
-            const unitTitle = document.createElement("h3");
-            unitTitle.textContent = unit.title;
-            lessonsList.appendChild(unitTitle);
-
-            unit.lessons.forEach((lesson, lessonIndex) => {
-
-                const button = document.createElement("button");
-
-                button.className = "secondary-btn";
-                button.textContent = lesson.title;
-                button.style.width = "100%";
-                button.style.textAlign = "left";
-
-                button.addEventListener("click", () => {
-                    lessonDetails.innerHTML = lesson.content;
-                });
-
-                lessonsList.appendChild(button);
-
-                if (unitIndex === 0 && lessonIndex === 0) {
-                    button.click();
-                }
-
-            });
-
-        });
-
-    }
-
-    if (window.courseData?.[courseKey]) {
-        displayCourse();
-    } else {
-
-        const script = document.createElement("script");
-
-        script.src = courseKey + ".js";
-
-        script.onload = displayCourse;
-
-        script.onerror = () => {
-            lessonDetails.innerHTML =
-                "<h2>Unable to load course content.</h2>";
-        };
-
-        document.body.appendChild(script);
-
-    }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}// ==============================
-// CODEVERSE COURSE FIX
-// ==============================
-
-function openRealCourse(courseKey) {
-
-    const viewer = document.getElementById("courseViewer");
-    const title = document.getElementById("viewerCourseTitle");
-    const description = document.getElementById("viewerCourseDescription");
-    const lessons = document.getElementById("lessonsList");
-    const details = document.getElementById("lessonDetails");
-
-    document.querySelectorAll(
-        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
-    ).forEach(section => section.hidden = true);
-
-    viewer.hidden = false;
-    title.textContent = courseNames[courseKey];
-    description.textContent = "Your learning journey starts here.";
-    lessons.innerHTML = "";
-    details.innerHTML = "<h2>Loading lessons...</h2>";
-
-    function showLessons() {
-
-        const course = window.courseData?.[courseKey];
-
-        if (!course) {
-            details.innerHTML = "<h2>Course content not found.</h2>";
-            return;
-        }
-
-        title.textContent = course.title;
-        description.textContent = course.description;
-
-        course.units.forEach(unit => {
-
-            const heading = document.createElement("h3");
-            heading.textContent = unit.title;
-            lessons.appendChild(heading);
-
-            unit.lessons.forEach(lesson => {
-
-                const button = document.createElement("button");
-                button.className = "secondary-btn";
-                button.textContent = lesson.title;
-                button.style.width = "100%";
-
-                button.addEventListener("click", () => {
-                    details.innerHTML = lesson.content;
-                });
-
-                lessons.appendChild(button);
-
-            });
-
-        });
-
-        const firstLesson = lessons.querySelector("button");
-        if (firstLesson) firstLesson.click();
-    }
-
-    if (window.courseData?.[courseKey]) {
-        showLessons();
-    } else {
-        const script = document.createElement("script");
-        script.src = courseKey + ".js";
-
-        script.onload = showLessons;
-
-        script.onerror = () => {
-            details.innerHTML = "<h2>Could not load this course.</h2>";
-        };
-
-        document.body.appendChild(script);
-    }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// Intercept course clicks before the old handlers
-
-document.addEventListener("click", function(event) {
-
-    const card = event.target.closest(".course-card");
-
-    if (!card) return;
-
-    const cards = Array.from(
-        document.querySelectorAll(".course-card")
-    );
-
-    const index = cards.indexOf(card);
-
-    const keys = ["java", "javascript", "html", "css", "php", "dart"];
-
-    if (!keys[index]) return;
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    localStorage.setItem("codeverse-current-course", keys[index]);
-
-    openRealCourse(keys[index]);
-
-}, true);// ==============================
-// COPY LESSON CODE
-// ==============================
-
-function copyLessonCode(elementId) {
-
-    const codeElement = document.querySelector(
-        "#" + elementId + " code"
-    );
-
-    if (!codeElement) return;
-
-    navigator.clipboard.writeText(codeElement.innerText)
-        .then(() => {
-
-            const button = document.querySelector(
-                `[onclick="copyLessonCode('${elementId}')"]`
-            );
-
-            if (button) {
-                const oldText = button.textContent;
-
-                button.textContent = "✓ Copied!";
-
-                setTimeout(() => {
-                    button.textContent = oldText;
-                }, 1500);
-            }
-
-        })
-        .catch(() => {
-            alert("Unable to copy. Please copy the code manually.");
-        });
-
-}// ==============================
-// LESSON PROGRESS SYSTEM
-// ==============================
-
-function getCourseProgress(courseKey) {
-
-    const course = window.courseData?.[courseKey];
-
-    if (!course) return { total: 0, completed: 0 };
-
-    const allLessons = course.units.flatMap(unit => unit.lessons);
-
-    const saved = JSON.parse(
-        localStorage.getItem("codeverse-completed") || "{}"
-    );
-
-    const completed = saved[courseKey] || [];
-
-    return {
-        total: allLessons.length,
-        completed: completed.length
-    };
-}
-
-function updateLessonProgress(courseKey) {
-
-    const progress = getCourseProgress(courseKey);
-
-    const percentage = progress.total
-        ? Math.round(progress.completed / progress.total * 100)
-        : 0;
-
-    let progressBox = document.getElementById("courseProgressBox");
-
-    if (!progressBox) {
-
-        progressBox = document.createElement("div");
-
-        progressBox.id = "courseProgressBox";
-
-        document.querySelector(".viewer-header")
-            .appendChild(progressBox);
-
-    }
-
-    progressBox.innerHTML = `
-        <div style="display:flex;justify-content:space-between;margin:15px 0 8px">
-            <strong>Course Progress</strong>
-            <strong>${percentage}%</strong>
-        </div>
-
-        <div style="height:10px;background:var(--border);border-radius:20px;overflow:hidden">
-            <div style="
-                width:${percentage}%;
-                height:100%;
-                background:linear-gradient(90deg,#8B5CF6,#22D3EE);
-                border-radius:20px;
-                transition:width .4s">
-            </div>
-        </div>
-
-        <p style="margin-top:8px;color:var(--text-secondary)">
-            ${progress.completed} of ${progress.total} lessons completed
-        </p>
-    `;
-}
-
-function completeCurrentLesson(courseKey, lessonTitle) {
-
-    const saved = JSON.parse(
-        localStorage.getItem("codeverse-completed") || "{}"
-    );
-
-    if (!saved[courseKey]) {
-        saved[courseKey] = [];
-    }
-
-    if (!saved[courseKey].includes(lessonTitle)) {
-        saved[courseKey].push(lessonTitle);
-    }
-
-    localStorage.setItem(
-        "codeverse-completed",
-        JSON.stringify(saved)
-    );
-
-    updateLessonProgress(courseKey);
-
-    const button = document.getElementById("completeLessonBtn");
+    const button = document.getElementById("languageBtn");
 
     if (button) {
-        button.textContent = "✓ Lesson Completed";
-        button.disabled = true;
+        button.textContent = selected === "ar" ? "English" : "العربية";
     }
 
 }
 
-// Add completion button whenever a lesson is displayed
+function toggleLanguage() {
 
-const lessonObserver = new MutationObserver(() => {
+    const next =
+        CODEVERSE_STATE.currentLanguage === "en" ? "ar" : "en";
 
-    const details = document.getElementById("lessonDetails");
+    applyLanguage(next);
 
-    if (!details || !details.innerHTML.trim()) return;
+}
 
-    if (details.querySelector("#completeLessonBtn")) return;
+document.addEventListener("DOMContentLoaded", () => {
 
-    const courseKey = localStorage.getItem(
-        "codeverse-current-course"
+    applyLanguage(
+        CODEVERSE_STORAGE.get("language", "en")
     );
 
-    if (!courseKey || !window.courseData?.[courseKey]) return;
+    const button = document.getElementById("languageBtn");
 
-    const currentLesson = window.courseData[courseKey]
-        .units.flatMap(unit => unit.lessons)
-        .find(lesson => lesson.content === details.innerHTML);
-
-    if (!currentLesson) return;
-
-    const saved = JSON.parse(
-        localStorage.getItem("codeverse-completed") || "{}"
-    );
-
-    const isCompleted = (saved[courseKey] || [])
-        .includes(currentLesson.title);
-
-    const button = document.createElement("button");
-
-    button.id = "completeLessonBtn";
-    button.className = "complete-lesson-btn";
-
-    button.textContent = isCompleted
-        ? "✓ Lesson Completed"
-        : "✓ Mark as Complete";
-
-    button.disabled = isCompleted;
-
-    button.style.marginTop = "25px";
-
-    button.addEventListener("click", () => {
-        completeCurrentLesson(courseKey, currentLesson.title);
-    });
-
-    details.appendChild(button);
-
-    updateLessonProgress(courseKey);
-
-});
-
-lessonObserver.observe(
-    document.getElementById("lessonDetails"),
-    { childList: true, subtree: true }
-);// ==============================
-// SAVE PRACTICE CODE
-// ==============================
-
-// Track the currently opened course
-const previousOpenRealCourse = window.openRealCourse;
-
-window.openRealCourse = function(courseKey) {
-
-    localStorage.setItem(
-        "codeverse-current-course",
-        courseKey
-    );
-
-    if (previousOpenRealCourse) {
-        return previousOpenRealCourse(courseKey);
+    if (button) {
+        button.addEventListener("click", toggleLanguage);
     }
-};
 
-// Add save button to practice editors
-const practiceObserver = new MutationObserver(() => {
+});// =====================================
+// SAVED CODE SNIPPETS
+// =====================================
 
-    const courseKey = localStorage.getItem(
-        "codeverse-current-course"
+function saveCodeSnippet(courseId, lessonId, code) {
+
+    const key = "snippets-" + courseId;
+
+    const snippets = CODEVERSE_STORAGE.get(key, []);
+
+    const existingIndex = snippets.findIndex(
+        item => item.lessonId === lessonId
     );
 
-    if (!courseKey) return;
+    const snippet = {
+        lessonId: lessonId,
+        code: code,
+        savedAt: new Date().toISOString()
+    };
 
-    document.querySelectorAll(".practice-box textarea")
-        .forEach(textarea => {
+    if (existingIndex >= 0) {
+        snippets[existingIndex] = snippet;
+    } else {
+        snippets.push(snippet);
+    }
 
-            if (textarea.dataset.saveReady) return;
+    return CODEVERSE_STORAGE.set(key, snippets);
 
-            textarea.dataset.saveReady = "true";
+}
 
-            const storageKey =
-                "codeverse-code-" + courseKey + "-" + textarea.id;
+function getSavedCodeSnippets(courseId) {
 
-            textarea.value =
-                localStorage.getItem(storageKey) || textarea.value;
+    return CODEVERSE_STORAGE.get(
+        "snippets-" + courseId,
+        []
+    );
 
-            const saveButton = document.createElement("button");
-
-            saveButton.className = "copy-code-btn";
-            saveButton.textContent = "💾 Save My Code";
-
-            saveButton.style.marginTop = "12px";
-
-            saveButton.addEventListener("click", () => {
-
-                localStorage.setItem(
-                    storageKey,
-                    textarea.value
-                );
-
-                saveButton.textContent = "✓ Code Saved!";
-
-                setTimeout(() => {
-                    saveButton.textContent = "💾 Save My Code";
-                }, 1500);
-
-            });
-
-            textarea.insertAdjacentElement(
-                "afterend",
-                saveButton
-            );
-
-        });
-
-});
-
-practiceObserver.observe(
-    document.getElementById("lessonDetails"),
-    { childList: true, subtree: true }
-);
+}
