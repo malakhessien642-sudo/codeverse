@@ -445,4 +445,38 @@ document.addEventListener("click", function(event) {
 
     openRealCourse(keys[index]);
 
-}, true);
+}, true);// ==============================
+// COPY LESSON CODE
+// ==============================
+
+function copyLessonCode(elementId) {
+
+    const codeElement = document.querySelector(
+        "#" + elementId + " code"
+    );
+
+    if (!codeElement) return;
+
+    navigator.clipboard.writeText(codeElement.innerText)
+        .then(() => {
+
+            const button = document.querySelector(
+                `[onclick="copyLessonCode('${elementId}')"]`
+            );
+
+            if (button) {
+                const oldText = button.textContent;
+
+                button.textContent = "✓ Copied!";
+
+                setTimeout(() => {
+                    button.textContent = oldText;
+                }, 1500);
+            }
+
+        })
+        .catch(() => {
+            alert("Unable to copy. Please copy the code manually.");
+        });
+
+}
