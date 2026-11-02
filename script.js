@@ -166,4 +166,88 @@ function openCourse(courseKey) {
           " course selected. Lesson viewer is being prepared!"
     );
 
+}// ==============================
+// COURSE VIEWER NAVIGATION
+// ==============================
+
+const courseViewer = document.getElementById("courseViewer");
+const backToCourses = document.getElementById("backToCourses");
+
+const courseDescriptions = {
+    java: "Master Java programming step by step.",
+    javascript: "Build interactive websites with JavaScript.",
+    html: "Learn how to structure modern websites.",
+    css: "Create beautiful and responsive designs.",
+    php: "Learn server-side web development.",
+    dart: "Start programming with Dart."
+};
+
+function openCourse(courseKey) {
+
+    const courseName = courseNames[courseKey];
+
+    if (!courseName) return;
+
+    document.querySelectorAll(
+        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
+    ).forEach(section => {
+        section.hidden = true;
+    });
+
+    courseViewer.hidden = false;
+
+    document.getElementById("viewerCourseTitle").textContent =
+        courseName;
+
+    document.getElementById("viewerCourseDescription").textContent =
+        courseDescriptions[courseKey];
+
+    const lessonsList = document.getElementById("lessonsList");
+
+    lessonsList.innerHTML = "";
+
+    const lessonButton = document.createElement("button");
+
+    lessonButton.className = "secondary-btn";
+    lessonButton.textContent =
+        currentLanguage === "ar"
+        ? "مقدمة الكورس"
+        : "Course Introduction";
+
+    lessonButton.addEventListener("click", () => {
+
+        document.getElementById("lessonDetails").innerHTML = `
+            <h2>${courseName} - Introduction</h2>
+            <p>Welcome to ${courseName} in CODEVERSE.</p>
+            <p>Your learning journey starts here.</p>
+            <p>Detailed lessons and practical examples will be added next.</p>
+        `;
+
+    });
+
+    lessonsList.appendChild(lessonButton);
+
+    lessonButton.click();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
 }
+
+backToCourses.addEventListener("click", () => {
+
+    courseViewer.hidden = true;
+
+    document.querySelectorAll(
+        ".hero, .courses-section, .features-section, .dashboard-section, .footer"
+    ).forEach(section => {
+        section.hidden = false;
+    });
+
+    document.getElementById("courses").scrollIntoView({
+        behavior: "smooth"
+    });
+
+});
